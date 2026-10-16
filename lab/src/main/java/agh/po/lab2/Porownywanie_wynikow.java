@@ -15,20 +15,23 @@ public class Porownywanie_wynikow {
             int liczba=(int)(Math.random()*50+1);
             if (!randomy.contains(liczba)){
                 randomy.add(liczba);}
-            i++;
+            i++;}
         if(typy.size()!=6) {
             System.out.println("Zla liczba cyfr!!");
-        } else {
+        }
+        else {
             int liczba_trafien=0;
             for (int x:typy){
                 if(randomy.contains(x)){
                     liczba_trafien++;
                 }
-            }System.out.println(liczba_trafien);
+            }System.out.println("Twoje typy: "+typy);
+            System.out.println("Wylosowane liczby: "+randomy);
+            System.out.println(liczba_trafien);
 
         }
 
 
         }
     }
-}
+
