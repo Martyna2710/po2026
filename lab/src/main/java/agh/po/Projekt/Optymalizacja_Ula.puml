@@ -1,0 +1,116 @@
+@startuml
+skinparam classAttributeIconSize 0
+'wyłącza kolorowe ikony kółek i kwadratów przy zmiennych oraz metodach, wymuszając w ich miejsce wyświetlanie klasycznych znaków tekstowych z UML (+ dla metod publicznych, - dla prywatnych, # dla chronionych)
+skinparam monochrome false
+'wykres jest kolorowy, nie w odcieniach szarosci
+
+package "Środowisko i Zarządzanie" {
+'ten pakiet odpowiada za zewnetrzne warunki symulacji i interakcje zarzadzajacego (pszczelarza) z aplikacja
+    class Swiat {
+    'klasa reprezentuje srodowisko
+        - dzien: int
+        - miesiac: int
+        - temperatura: float
+        - wilgotnosc: float
+        - opady: float
+        - wiatr: float
+        'wszystko powyzej to prywatne atrybuty tworzace swiat w symulacji (okreslajace czas i kontrolujace pogode)
+        + aktualizujPogode()
+        + getZmiennaPogodowa(): String
+        'do obslugi atrybutow z tej klasy sluza publiczne metody
+    }
+    'klasa Świat laczy się z klasą Ul-jeden swiat "zawiera" okreslona liczbe ("wiele") obiektow typu Ul
+
+    class Pszczelarz {
+        + sprawdzUl(ul: Ul)
+        + zapobiegajRojowi(ul: Ul)
+    }
+    'klasa Pszczelarz definuje, jakie akcje zarzadca pasieki moze wykonac na ulu
+    'posiada publiczne metody sprawdz(ul: Ul) oraz zapobiegajRojowi(ul: Ul), ktore jak argument przyjmuja referencje do konkretnego ula
+    'klase Pszczelarz laczy z klasa Ul przerywana linia-oznacza to, ze Przczelarz uzywa obiektow klasy Ul do wykonywania swoich operacji
+    'klasa Pszczelarz nie posiada wlasnych atrybutow stanu
+}
+
+package "Ul i Populacja" {
+'rdzen calego projektu, definiuje miejsce zycia owadow i ich hierarchie spoleczna
+    class Ul {
+        - halas: float
+        - pojemnosc: int
+        - zapasMiodu: float
+        - liczbaMatecznikow: int
+        'prywatne atrybuty roju
+        + obliczSileRodziny(): float
+        + weryfikujRojenie(): boolean
+        + usunMateczniki()
+        + dodajZapas(ilosc: float)
+        + symulujDzien(swiat: Swiat)
+        'symulujDzien(x: y)-wymusza przekazanie instancji srodowiska (czyli tego co jest w klasie Srodowisko), zeby algorytm ula mogl sprawdzic aktualna pogode
+        'metody publiczne, przekazujace jak dziala Ul
+        'metody-typy w naiwasach-argumenty wejsciowe-okresla jakich obiektow lub wartosci metoda potrzebuje z zewnatrz do poprawnego wykonania zadania
+        'metody-po dwukropku-wyniki dzialania-wskazuja, co metoda zwraca po zakonczeniu obliczen
+    }
+
+    abstract class Pszczola {
+    'klasa Pszczola jest abstarkcyjna, bo nie wystepuje ona w aplikacji, sluzy jako wspolny fundament dla konkretnych kast np. Robotnica albo Krolowa
+        # wiek: int
+        # sytosc: float
+        # ul: Ul
+        + zyj()
+        + czyZyje(): boolean 'boolean-prawda lub falsz
+    }
+
+    class Czerw extends Pszczola {
+        - plec: Plec
+        - docelowaKasta: Kasta
+        + decydujOKascie()
+        + ewoluuj(): Pszczola
+    }
+    'class [...] extends-sluzy do tworzenia relacji dziedziczenia, co czyni klase Czerw podklasa abstarkcyjniej klasy bazowej Pszczola
+
+    class Robotnica extends Pszczola {
+        - nastroj: float
+        - rojliwosc: float
+        + pracuj(swiat: Swiat)
+        - obliczWydajnosc(temperatura: float): float
+    }
+
+    class Krolowa extends Pszczola {
+        - inkubuje: int
+        + skladajJaja(): List<Czerw>
+    }
+
+    class Truten extends Pszczola {
+        + zyj()
+    }
+}
+
+enum Plec {
+    SAMIEC
+    SAMICA
+}
+
+enum Kasta {
+    KROLOWA
+    ROBOTNICA
+    TRUTEN
+}
+'enum-typ wyliczeniowy-struktura sluzaca do stworzenia z gory okreslonej, zamknietej listy satlych wartosci, z ktorych mozna wybierac
+
+Swiat "1" *-- "wiele" Ul : zawiera >
+'*--generuje ciagla linie z czarnym rombem; oznacza to kompozycje(przynaleznosc)-jeden obiekt Swiat sklada sie z wielu obiektow Ul i calkowicie zalrzadza ich istnienem
+'znak na koncu oznacza kierunek czytania relacji
+'relacja jeden do wielu
+Ul "1" *-- "1" Krolowa : posiada matkę >
+'podobnie jak wyzje; kazdy Ul posiada jedna Krolowa
+Ul "1" o-- "wiele" Pszczola : zamieszkuje <
+'o-- tworzy linie zakonczona pustym rombem, reprezentuje to agregacje-Ul zawiera w sobie kolekcje owadow, ale kazda Pszczola stanowi niezalezny byt, ktory mozna swobonie dodawac lub usuwac
+Pszczelarz ..> Ul : opiekuje się >
+'..> rysuje linie przerywana z otwarta strzalka w strone ula-relacja zaleznosci-klasa Pszczelarz nie zapisuje ula wewnatrz siebie jako stalego atrybutu, ale potrzebuje obiektow tego typu na chwile, do wykonywania metod
+Czerw -> Plec
+Czerw -> Kasta
+'-> tworzy bezposrednie polaczenie od obiektu do odpowiedniego slownika-asocjacja skierowana-informuje system ze kazda instancja w danej klasie uzywa wartosci z wyliczen Enum
+@enduml
+Jak aplikacja bedzie optymalizowac prace ula?
+1.Harmonogram przegladow-wyliczy max odstep miedzy wizytami; jak rzadko mozna otwierac Ul i usuwac matecniki, aby zminimalizowac naklad pracy, ale jednoczesnie zapobiec ucieczce roju
+2.Zarzadzanie ryzykiem glodu- przeanalizuje wplyw niekorzystnej pogody na szybkosc konsumpcji zgromadzonego miodu, wskaze moment w ktorym nalezy podac syrop cukrowy, minimalizujac koszty sztucznego dokarmiania
+3. Kalkulacja strat pokoleniowych- oceni spadek liczebnosci robotnic po naglej utracie matki; zesatwi braki w zbiorach z czasem potrzebnym na wyhodowanie nowej krolowej; pomoze z decyzja o ewentualnym zakupie gotowej matki z zewnetrznej hodowli
