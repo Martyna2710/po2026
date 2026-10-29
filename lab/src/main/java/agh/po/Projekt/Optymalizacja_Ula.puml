@@ -8,20 +8,40 @@ package "Środowisko i Zarządzanie" {
 'ten pakiet odpowiada za zewnetrzne warunki symulacji i interakcje zarzadzajacego (pszczelarza) z aplikacja
     class Swiat {
     'klasa reprezentuje srodowisko
-        - dzien: int
-        - miesiac: int
+        - dzien: short
+        - miesiac: short
+        'atrybuty określające datę
         - temperatura: float
-        - wilgotnosc: float
         - opady: float
         - wiatr: float
-        'wszystko powyzej to prywatne atrybuty tworzace swiat w symulacji (okreslajace czas i kontrolujace pogode)
-        + aktualizujPogode()
-        + getZmiennaPogodowa(): String
-        'do obslugi atrybutow z tej klasy sluza publiczne metody
+        'atrybuty przechowujące warunki pogodowe w DANYM KONKRETNYM MOMENCIE (od nich zależy praca pszczół)
+        - harmonogramPogody: List<zapisPogodowy>
+        'działa jak baza danych na każdy dzień roku, z wpisanymi warunkami atmosferycznymi (temperatura, opady, wiatr) na dany dzień
+        + wczytajTabelaPogodowa()
+        'inicjalizacja; wywoluje sie raz, na starcie, zeby zaladowac dane z pliku zawierajcego info o pogodzie
+        +aktualizujPogode(dzień: short, miesiac: short)
+        'mechanizm zmiany czasu; zmiana dnia w symulacji wywołuje tą metode; algorytm wew. niej przeszukuje listę harmonogramPogody, znajduje wpis z pasującą datą i nadpisuje aktualną temperaturą, opady i wiatr
+        + czyJestBurza(): boolean
+        'metoda "w locie" sprwdza stan opadów i wiatru; jeśli oba stany przekraczają dany limit, występuje burza
     }
     'klasa Świat laczy się z klasą Ul-jeden swiat "zawiera" okreslona liczbe ("wiele") obiektow typu Ul
 
+    class zapisPogodowy{
+    -przypisanyDzien: short
+    -przypisanyMiesiac: short
+    'atrybuty określające datę do której przypisany jest konkretny zestaw pogodowy
+    -temperatura: float
+    -opady: float
+    -wiatr: float
+    'wartosci pogody "zamrozone w czasie", przypisane do konkretnej daty
+    +getTemperature(): float
+    +getOpady(): float
+    +getWiatr(): float
+    'w programowaniu obiektowym wartości w klasie są prywatne; jeśli klasa Swiat będzie potrzebowała odczytać warunki z danego dnia, musi użyć publicznej metody getXXX, która zwróci jej tą wartość
+    }
+
     class Pszczelarz {
+        - pieniadze: int
         + sprawdzUl(ul: Ul)
         + zapobiegajRojowi(ul: Ul)
     }
@@ -35,80 +55,102 @@ package "Ul i Populacja" {
 'rdzen calego projektu, definiuje miejsce zycia owadow i ich hierarchie spoleczna
     class Ul {
         - halas: float
-        - pojemnosc: int
+        'poziom hałasu wygenerowanego przez pszczoly
+        - pojemnoscMiodu: int
+        - pojemnoscPszczol: int
+        'dwa osobne limity miejsca, pozwala weryfikowac czy nie brakuje miejsca na nowy miod i nowe pszczoly
         - zapasMiodu: float
+        'ile aktualnie miodu jest zgromdzone w ulu
+        - nastrojRojenia: float
+        'wskaźnik napięcia pszczółek 0.o
+        - iloscRobotnic: int
+        - iloscTrutni: int
+        - iloscCzerw: int
+        - iloscKrolowych: int
+        'licznik poszczegolnych grup owadow
         - liczbaMatecznikow: int
-        'prywatne atrybuty roju
-        + obliczSileRodziny(): float
-        + weryfikujRojenie(): boolean
-        + usunMateczniki()
-        + dodajZapas(ilosc: float)
+        + zamagazynujMiod(ilosc: float)
+        'pszczoly przynasza miod do ula
+        'ilość specjalnie zbudowanych komór dla nowych królowych
+        + rojenie(nastrojRojenia: float, iloscKrolowych: int)
+        'metoda zarzadzajaca rojeniem w ulu
         + symulujDzien(swiat: Swiat)
-        'symulujDzien(x: y)-wymusza przekazanie instancji srodowiska (czyli tego co jest w klasie Srodowisko), zeby algorytm ula mogl sprawdzic aktualna pogode
+        'serce symulacji; każdego dnia funkcja pobierze informacje z klasy Swiat i na tej podstawie odejmie (lub doda) miód do ula i zaktualizuje liczebnośc pszczół
+        'PUBLICZNE METODY DLA PSZCZELARZA:
+        + usunMateczniki()
+        'metoda, ktora po wywołaniu wyzeruje zminną liczbaMatecznikow wewnątrz ula
+        + podajSyrop(ilosc: float)
+        'pozwala dodać podaną liczbę (ilość) do wewnętrznej zmiennej zapasMiodu
+        + getHalas(): float
+        + getZapasMiodu(): float
+        + getLiczbaMatecznikow(): int
+        'gettery, tak jak w relacji Swiat-zapisPogodowy
         'metody publiczne, przekazujace jak dziala Ul
         'metody-typy w naiwasach-argumenty wejsciowe-okresla jakich obiektow lub wartosci metoda potrzebuje z zewnatrz do poprawnego wykonania zadania
         'metody-po dwukropku-wyniki dzialania-wskazuja, co metoda zwraca po zakonczeniu obliczen
     }
 
+
     abstract class Pszczola {
     'klasa Pszczola jest abstarkcyjna, bo nie wystepuje ona w aplikacji, sluzy jako wspolny fundament dla konkretnych kast np. Robotnica albo Krolowa
-        # wiek: int
+        # wiek: short
         # sytosc: float
-        # ul: Ul
-        + zyj()
-        + czyZyje(): boolean 'boolean-prawda lub falsz
+        # ulID: short
+        'atrybuty konkretnej pszczoly, wiek, sytosc, IDula do którego należy
+        + jedz(ul: Ul)
+        + umrzyj(wiek: short, sytosc: float): boolean
     }
 
     class Czerw extends Pszczola {
-        - plec: Plec
-        - docelowaKasta: Kasta
-        + decydujOKascie()
-        + ewoluuj(): Pszczola
+        - plec: boolean
+        'np. true=samica, false=samiec
+        - mleczko: boolean
+        'odnosi sie do mleczka pszczelego; ten czynnik (czy larwa jest intensywanie karmiona) decyduje, czy samica wyrosnie na robotnice, czy na krolowa
+        + dorosnij(plec: boolean, mleczko: boolean): Pszczola
+        'ewolucja; jako argument przyjmuje płeć i stan wykarmienia; wynikiem beędzie nowy obiekt typu Pszczoła (np. Robotnica albo Krolowa)
     }
     'class [...] extends-sluzy do tworzenia relacji dziedziczenia, co czyni klase Czerw podklasa abstarkcyjniej klasy bazowej Pszczola
 
     class Robotnica extends Pszczola {
-        - nastroj: float
-        - rojliwosc: float
-        + pracuj(swiat: Swiat)
-        - obliczWydajnosc(temperatura: float): float
+        - talent: float
+        'wylosowana na etapie "narodzin" wartość, która określa, jak dobrą zbieraczką jest pszczoła
+        + pracuj(talent: float, pogoda: Swiat, ul: Ul)
+        'metoda akcji, zależna od talentu pszczoły i od aktualnych warunków pogodowych; pszczola przynosi miod do ula
+        '
     }
 
     class Krolowa extends Pszczola {
-        - inkubuje: int
-        + skladajJaja(): List<Czerw>
+        - glowna: boolean
+        'określa, czy to główna matka, czy "zastępcza"
+        - ciaze: int
+        'określa zapas nasienia zebranego podaczas godów (...XD)
+        + gody(iloscTrutni: int)
+        'określa, jak bardzo powiększy się atrybut ciaze
+        + zlozJaja(ciaze: int): int
+        'wykorzystuje zapas z atrybuty ciaze; zwraca liczbę wyprodukowanych jaj, którą Ul doda do iloscCzerewu
     }
 
     class Truten extends Pszczola {
-        + zyj()
+        + wygnanie(miesiac: short, iloscCzerwu: int): boolean
+        'pozbywanie się trutni na zimę na podstawie miesiąca i ilości czerwiu
     }
 }
-
-enum Plec {
-    SAMIEC
-    SAMICA
-}
-
-enum Kasta {
-    KROLOWA
-    ROBOTNICA
-    TRUTEN
-}
-'enum-typ wyliczeniowy-struktura sluzaca do stworzenia z gory okreslonej, zamknietej listy satlych wartosci, z ktorych mozna wybierac
-
 Swiat "1" *-- "wiele" Ul : zawiera >
 '*--generuje ciagla linie z czarnym rombem; oznacza to kompozycje(przynaleznosc)-jeden obiekt Swiat sklada sie z wielu obiektow Ul i calkowicie zalrzadza ich istnienem
 'znak na koncu oznacza kierunek czytania relacji
 'relacja jeden do wielu
-Ul "1" *-- "1" Krolowa : posiada matkę >
-'podobnie jak wyzje; kazdy Ul posiada jedna Krolowa
+Swiat "1" *-- "wiele" zapisPogodowy : korzysta z bazy >
+'kompozycja: świat posiada bazę dni z predefiniowaną pogodą
 Ul "1" o-- "wiele" Pszczola : zamieszkuje <
 'o-- tworzy linie zakonczona pustym rombem, reprezentuje to agregacje-Ul zawiera w sobie kolekcje owadow, ale kazda Pszczola stanowi niezalezny byt, ktory mozna swobonie dodawac lub usuwac
 Pszczelarz ..> Ul : opiekuje się >
 '..> rysuje linie przerywana z otwarta strzalka w strone ula-relacja zaleznosci-klasa Pszczelarz nie zapisuje ula wewnatrz siebie jako stalego atrybutu, ale potrzebuje obiektow tego typu na chwile, do wykonywania metod
-Czerw -> Plec
-Czerw -> Kasta
-'-> tworzy bezposrednie polaczenie od obiektu do odpowiedniego slownika-asocjacja skierowana-informuje system ze kazda instancja w danej klasie uzywa wartosci z wyliczen Enum
+Krolowa ..> Czerw : składa >
+'zależność: metoda zlozJaja() u krolowej produkuje nowy czerw
+Czerw ..> Robotnica : dorasta w >
+Czerw ..> Krolowa : dorasta w >
+Czerw ..> Truten : dorasta w >
+'zależności ewoluucyjne: metoda dorosnij() u czerwiu decyduje, w jaką kastę zamienisię owad na podstawie płci i mleczka
 @enduml
 Jak aplikacja bedzie optymalizowac prace ula?
 1.Harmonogram przegladow-wyliczy max odstep miedzy wizytami; jak rzadko mozna otwierac Ul i usuwac matecniki, aby zminimalizowac naklad pracy, ale jednoczesnie zapobiec ucieczce roju
