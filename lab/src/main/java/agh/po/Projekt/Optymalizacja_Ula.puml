@@ -150,7 +150,7 @@ Krolowa ..> Czerw : składa >
 Czerw ..> Robotnica : dorasta w >
 Czerw ..> Krolowa : dorasta w >
 Czerw ..> Truten : dorasta w >
-'zależności ewoluucyjne: metoda dorosnij() u czerwiu decyduje, w jaką kastę zamienisię owad na podstawie płci i mleczka
+'zależności ewolucyjne: metoda dorosnij() u czerwiu decyduje, w jaką kastę zamienisię owad na podstawie płci i mleczka
 @enduml
 Jak aplikacja bedzie optymalizowac prace ula?
 1.Harmonogram przegladow-wyliczy max odstep miedzy wizytami; jak rzadko mozna otwierac Ul i usuwac matecniki, aby zminimalizowac naklad pracy, ale jednoczesnie zapobiec ucieczce roju
