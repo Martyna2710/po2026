@@ -44,6 +44,8 @@ package "Środowisko i Zarządzanie" {
         - pieniadze: int
         + sprawdzUl(ul: Ul)
         + zapobiegajRojowi(ul: Ul)
+        +dokarmiaj(ul:Ul, ilosc: int)
+        'metoda-dokarmianie z wykorzystaniem pieniędzy pszczelarza
     }
     'klasa Pszczelarz definuje, jakie akcje zarzadca pasieki moze wykonac na ulu
     'posiada publiczne metody sprawdz(ul: Ul) oraz zapobiegajRojowi(ul: Ul), ktore jak argument przyjmuja referencje do konkretnego ula
@@ -59,31 +61,36 @@ package "Ul i Populacja" {
         - pojemnoscMiodu: int
         - pojemnoscPszczol: int
         'dwa osobne limity miejsca, pozwala weryfikowac czy nie brakuje miejsca na nowy miod i nowe pszczoly
-        - zapasMiodu: float
+        - zapasMiodu: int
+        'zapas miodu: float -> int
         'ile aktualnie miodu jest zgromdzone w ulu
         - nastrojRojenia: float
         'wskaźnik napięcia pszczółek 0.o
         - iloscRobotnic: int
         - iloscTrutni: int
         - iloscCzerw: int
-        - iloscKrolowych: int
+        'usunęłam licznik królowych
         'licznik poszczegolnych grup owadow
-        - liczbaMatecznikow: int
-        + zamagazynujMiod(ilosc: float)
+        'usunełam liczbę mateczników i metodę usuń mateczniki
+        + zamagazynujMiod(ilosc: int)
+        'float->int
         'pszczoly przynasza miod do ula
         'ilość specjalnie zbudowanych komór dla nowych królowych
-        + rojenie(nastrojRojenia: float, iloscKrolowych: int)
+        + rojenie(nastrojRojenia: float)
+        'usunełam z rojenia argument ilość królowych
         'metoda zarzadzajaca rojeniem w ulu
         + symulujDzien(swiat: Swiat)
         'serce symulacji; każdego dnia funkcja pobierze informacje z klasy Swiat i na tej podstawie odejmie (lub doda) miód do ula i zaktualizuje liczebnośc pszczół
         'PUBLICZNE METODY DLA PSZCZELARZA:
-        + usunMateczniki()
         'metoda, ktora po wywołaniu wyzeruje zminną liczbaMatecznikow wewnątrz ula
-        + podajSyrop(ilosc: float)
+        + podajSyrop(ilosc: int)
+        'float->int
         'pozwala dodać podaną liczbę (ilość) do wewnętrznej zmiennej zapasMiodu
+        + elekcja()
+        'po śmierci królowej metoda wybiera pszypadkową czerw poniżej 3 dni i zmienia mu bool "mleczko" na true
         + getHalas(): float
-        + getZapasMiodu(): float
-        + getLiczbaMatecznikow(): int
+        + getZapasMiodu(): int
+        'float->int
         'gettery, tak jak w relacji Swiat-zapisPogodowy
         'metody publiczne, przekazujace jak dziala Ul
         'metody-typy w naiwasach-argumenty wejsciowe-okresla jakich obiektow lub wartosci metoda potrzebuje z zewnatrz do poprawnego wykonania zadania
@@ -108,6 +115,8 @@ package "Ul i Populacja" {
         'odnosi sie do mleczka pszczelego; ten czynnik (czy larwa jest intensywanie karmiona) decyduje, czy samica wyrosnie na robotnice, czy na krolowa
         + dorosnij(plec: boolean, mleczko: boolean): Pszczola
         'ewolucja; jako argument przyjmuje płeć i stan wykarmienia; wynikiem beędzie nowy obiekt typu Pszczoła (np. Robotnica albo Krolowa)
+        +ustawMleczko()
+        'pozwala ustawić tą wartość podczas elekcji
     }
     'class [...] extends-sluzy do tworzenia relacji dziedziczenia, co czyni klase Czerw podklasa abstarkcyjniej klasy bazowej Pszczola
 
@@ -120,8 +129,7 @@ package "Ul i Populacja" {
     }
 
     class Krolowa extends Pszczola {
-        - glowna: boolean
-        'określa, czy to główna matka, czy "zastępcza"
+        'usunelam bool "glowna"
         - ciaze: int
         'określa zapas nasienia zebranego podaczas godów (...XD)
         + gody(iloscTrutni: int)
@@ -153,6 +161,6 @@ Czerw ..> Truten : dorasta w >
 'zależności ewolucyjne: metoda dorosnij() u czerwiu decyduje, w jaką kastę zamienisię owad na podstawie płci i mleczka
 @enduml
 Jak aplikacja bedzie optymalizowac prace ula?
-1.Harmonogram przegladow-wyliczy max odstep miedzy wizytami; jak rzadko mozna otwierac Ul i usuwac matecniki, aby zminimalizowac naklad pracy, ale jednoczesnie zapobiec ucieczce roju
+1.Harmonogram przegladow-wyliczy max odstep miedzy wizytami; jak rzadko można otwierać Ul, aby kontrolować nastrój rojowy (nastrojRojenia) i zminimalizować nakład pracy, ale jednocześnie zapobiec ucieczce roju
 2.Zarzadzanie ryzykiem glodu- przeanalizuje wplyw niekorzystnej pogody na szybkosc konsumpcji zgromadzonego miodu, wskaze moment w ktorym nalezy podac syrop cukrowy, minimalizujac koszty sztucznego dokarmiania
 3. Kalkulacja strat pokoleniowych- oceni spadek liczebnosci robotnic po naglej utracie matki; zesatwi braki w zbiorach z czasem potrzebnym na wyhodowanie nowej krolowej; pomoze z decyzja o ewentualnym zakupie gotowej matki z zewnetrznej hodowli
