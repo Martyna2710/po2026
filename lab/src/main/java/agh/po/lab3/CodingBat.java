@@ -1,6 +1,8 @@
 package agh.po.lab3;
 
 public class CodingBat {
+
+    //Warmup 2
     public boolean noTriples(int[] nums) {
         for (int i=0; i<nums.length-2; i++){
             int x=nums[i];
@@ -9,6 +11,8 @@ public class CodingBat {
         }
         return true;
     }
+
+    //Warmup 2
     public String stringBits(String str) {
         String co_dwa="";
         for (int i=0; i<str.length(); i+=2){
@@ -16,9 +20,37 @@ public class CodingBat {
         }
         return co_dwa;
     }
-    public static void main(String[] args){
-        CodingBat codingBat=new CodingBat();
-        System.out.printf("wynik: "+codingBat.noTriples(new int[] {2,2,2,4,5,6}));
+
+    //Array 2
+    public int sum13(int[] nums) {
+        int sum=0;
+        for (int i=0; i<nums.length; i++) {
+            if (nums[i] == 13) {
+            } else if (i > 0 && nums[i - 1] == 13) {
+            } else {
+                sum += nums[i];
+            }
+        }
+        return sum;
     }
 
-}
+    //String 1
+    public String helloName(String name) {
+        return "Hello "+name+"!";
+    }
+
+    //String 2
+    public int countCode(String str) {
+        int sum=0;
+        for (int i=0; i<(str.length()-3); i++ ){
+            if (str.charAt(i)=='c' && str.charAt(i+1)=='o') {
+                if (str.charAt(i+3)=='e') {
+                    sum+=1;
+                }
+            }
+        }
+        return sum;
+    }
+    }
+
+
