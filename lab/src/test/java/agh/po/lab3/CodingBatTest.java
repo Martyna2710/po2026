@@ -1,5 +1,7 @@
 package agh.po.lab3;
-
+import java.util.HashMap;
+import java.util.Map;
+import java.util.HashMap;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -45,5 +47,21 @@ public class CodingBatTest {
         assertEquals(2, cosik.countCode("codexxcode"));
         assertEquals(2, cosik.countCode("cozexxcope"));
         assertEquals(1, cosik.countCode("cozfxxcope"));
+    }
+
+    @Test
+    public void TestmapAB4() {
+        assertEquals(Map.of("a", "aaa", "b", "bb", "c", "aaa"), cosik.mapAB4(new HashMap<>(Map.of("a", "aaa", "b", "bb"))));
+        assertEquals(Map.of("a", "aaa", "b", "bb", "c", "aaa"), cosik.mapAB4(new HashMap<>(Map.of("a", "aaa", "b", "bb", "c", "cake"))));
+        assertEquals(Map.of("a", "aa", "b", "bbb", "c", "bbb"), cosik.mapAB4(new HashMap<>(Map.of("a", "aa", "b", "bbb", "c", "cake"))));
+    }
+
+    @Test
+    public void Testpairs(){
+        assertEquals(Map.of("b", "g", "c", "e"), cosik.pairs(new String[]{"code", "bug"}));
+        assertEquals(Map.of("m", "n"), cosik.pairs(new String[]{"man", "moon", "main"}));
+        assertEquals(Map.of(), cosik.pairs(new String[]{}));
+
+
     }
 }
