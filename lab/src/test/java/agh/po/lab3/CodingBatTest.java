@@ -63,5 +63,8 @@ public class CodingBatTest {
         assertEquals(Map.of(), cosik.pairs(new String[]{}));
 
 
+
+
+
     }
 }
