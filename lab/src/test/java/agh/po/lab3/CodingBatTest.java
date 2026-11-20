@@ -57,14 +57,9 @@ public class CodingBatTest {
     }
 
     @Test
-    public void Testpairs(){
+    public void Testpairs() {
         assertEquals(Map.of("b", "g", "c", "e"), cosik.pairs(new String[]{"code", "bug"}));
         assertEquals(Map.of("m", "n"), cosik.pairs(new String[]{"man", "moon", "main"}));
         assertEquals(Map.of(), cosik.pairs(new String[]{}));
-
-
-
-
-
     }
 }
